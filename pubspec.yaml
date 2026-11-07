@@ -1,0 +1,19 @@
+name: mask_maker
+description: ছবি থেকে সাদা-কালো মাস্ক বানানোর টুল
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  image: ^4.1.7
+  image_picker: ^1.0.7
+  path_provider: ^2.1.2
+  share_plus: ^10.1.4
+
+flutter:
+  uses-material-design: true
+lib/segmenter.dart
