@@ -16,4 +16,3 @@ dependencies:
 
 flutter:
   uses-material-design: true
-lib/segmenter.dart
