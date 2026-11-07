@@ -3,6 +3,9 @@ import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
 
+/// দুই-পক্ষের প্রতিযোগিতা অ্যালগরিদম।
+/// seeds: 0 = দাগ নেই, 1 = সাবজেক্ট, 2 = ব্যাকগ্রাউন্ড
+/// ফেরত: প্রতি পিক্সেলে 255 (সাবজেক্ট) অথবা 0 (ব্যাকগ্রাউন্ড)
 class Segmenter {
   static Uint8List run({
     required img.Image image,
@@ -12,7 +15,9 @@ class Segmenter {
   }) {
     final w = image.width;
     final h = image.height;
-    final n = w * h;h
+    final n = w * h;
+
+    // ১) রঙ আর উজ্জ্বলতা আলাদা করে নেওয়া
     final red = Float32List(n);
     final green = Float32List(n);
     final blue = Float32List(n);
@@ -28,6 +33,7 @@ class Segmenter {
       }
     }
 
+    // ২) কিনারার শক্তি (Sobel), তারপর ০ থেকে ১-এর মধ্যে আনা
     final edge = Float32List(n);
     var sum = 0.0;
     for (var y = 1; y < h - 1; y++) {
@@ -148,4 +154,4 @@ class _MinHeap {
     _v[a] = _v[b];
     _v[b] = tv;
   }
-} 
+}   
