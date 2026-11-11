@@ -1,0 +1,56 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # android/ ফোল্ডার নিজে তৈরি হয়, হাতে বানাতে হয় না
+      - name: Create android project files
+        run: flutter create --platforms=android --project-name mask_maker --org com.maskmaker .
+
+      # বড় ছবির জন্য বেশি মেমোরি + অ্যাপের নাম
+      - name: Tweak manifest
+        run: |
+          sed -i 's/<application/<application android:largeHeap="true"/' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:label="[^"]*"/android:label="Mask Maker"/' android/app/src/main/AndroidManifest.xml
+
+      # প্লাগিনগুলো পুরনো Android (34) দিয়ে বানানো, কিন্তু নতুন Flutter ৩৬ চায়।
+      # তাই সব প্লাগিনের compileSdk ৩৬ করে দেওয়া হচ্ছে।
+      - name: Force compileSdk 36 for all plugins
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/compilesdk.gradle <<'EOF'
+          allprojects {
+            afterEvaluate { p ->
+              if (p.hasProperty('android')) {
+                p.android.compileSdkVersion 36
+              }
+            }
+          }
+          EOF
+
+      - run: flutter pub get
+
+      - run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mask-maker-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
